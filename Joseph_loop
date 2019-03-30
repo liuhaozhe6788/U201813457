@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node{
+    int No;
+    int num;
+    struct node *next;
+}*pnode,lnode;
+pnode firstnode(){
+    pnode p=(pnode)malloc(sizeof(lnode));
+    p->No=1;
+    p->next=p;
+    return p;
+}
+void insert(pnode first,int newdata){
+    pnode p=(pnode)malloc(sizeof(lnode));
+    p->No=newdata;
+    p->next=first->next;
+    first->next=p;
+}
+int find(pnode first,int n,int t){
+    int nu=n,k=0;
+    pnode p=first;
+    while(nu>1){
+        k++;
+        if(k==t){
+			printf("No.%d is out\n",p->No);
+			t=p->num;
+            p->num=0;
+            k=0;
+            nu--;
+            while(p->next->num==0) p=p->next;
+            p=p->next;
+        }
+        else {
+            while(p->next->num==0) p=p->next;
+            p=p->next;
+        }
+    }
+    while(p->num==0) p=p->next;
+    return p->No;
+}
+int main(){
+    int n,t,i;
+    printf("please input the total number and t:\n");
+    scanf("%d %d",&n,&t);
+    if(n<=0||t<=0){
+        printf("%d or %d is illegal",n,t);
+        return 0;
+    }
+    pnode first=firstnode();
+    for(i=0;i<n-1;i++)
+       insert(first,n-i);
+	pnode p=first;
+	printf("please input the password:\n");
+    for(i=0;i<n;i++){
+		scanf("%d",&p->num);
+		if(p->num<=0){
+            printf("password %d is illegal",p->num);
+            return 0;
+		}
+		p=p->next;
+	}
+    printf("No.%d is the last",find(first,n,t));
+    return 0;
+}
