@@ -1,0 +1,97 @@
+约瑟夫环实验报告
+专业：电子信息与通信学院
+班级：电信1808
+学号：U201813457
+姓名：刘浩哲
+完成日期：2019年3月25日星期一
+1.	需求分析
+设计任务：
+（1）	输入总人数n，每个人的密码，报数t者退出，得到报数t者的密码k，从1报数，报数k者退出，依次循环下去，输入值n,t和密码均为正整数
+（2）	依次输出退出的编号和最后一个编号，
+（3）	输入10  3  4 7 9 1 2 6 3 8 2 1，输出3 2 10 1 7 4 5 8 6 9
+2.  概要设计
+基本操作：
+firstnode()：建立第一个结点
+insert(pnode first,int newdata)：建立n-1个结点，形成单向循环链表
+find(pnode first,int n,int t)：依次找到并打印所有退出者的编号
+主函数main():输入n和t和所有人的密码，
+实现上述函数调用，
+打印最后一个人的编号
+3.  详细设计
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node{
+    int No;
+    int num;
+    struct node *next;
+}*pnode,lnode;
+pnode firstnode(){
+    pnode p=(pnode)malloc(sizeof(lnode));
+    p->No=1;
+    p->next=p;
+    return p;
+}
+void insert(pnode first,int newdata){
+    pnode p=(pnode)malloc(sizeof(lnode));
+    p->No=newdata;
+    p->next=first->next;
+    first->next=p;
+}
+int find(pnode first,int n,int t){
+    int nu=n,k=0;
+    pnode p=first;
+    while(nu>1){
+        k++;
+        if(k==t){
+			printf("No.%d is out\n",p->No);
+			t=p->num;
+            p->num=0;
+            k=0;
+            nu--;
+            while(p->next->num==0) p=p->next;
+            p=p->next;
+        }
+        else {
+            while(p->next->num==0) p=p->next;
+            p=p->next;
+        }
+    }
+    while(p->num==0) p=p->next;
+    return p->No;
+}
+int main(){
+    int n,t,i;
+    printf("please input the total number and t:\n");
+    scanf("%d %d",&n,&t);
+    if(n<=0||t<=0){
+        printf("%d or %d is illegal",n,t);
+        return 0;
+    }
+    pnode first=firstnode();
+    for(i=0;i<n-1;i++)
+       insert(first,n-i);
+	pnode p=first;
+	printf("please input the password:\n");
+    for(i=0;i<n;i++){
+		scanf("%d",&p->num);
+		if(p->num<=0){
+            printf("password %d is illegal",p->num);
+            return 0;
+		}
+		p=p->next;
+	}
+    printf("No.%d is the last",find(first,n,t));
+    return 0;
+}
+4．调试分析
+   （1）遇到的问题：
+        Scanf忘记取地址
+        解决方案：
+        裸眼找出
+   （2）体会：
+        编程时头脑要清晰，逻辑要有条理
+5.  用户说明
+   用户依次输入总人数和开始报数最大的数和所有人的密码就能得到结果
+6.  测试结果
+（1）	   输入10  3  4 7 9 1 2 6 3 8 2 1，输出3 2 10 1 7 4 5 8 6 9
+（2）	   输入 8   6  6 2 8 4 8 6 4 1，输出 6 4 1 2 5 8 3 7
