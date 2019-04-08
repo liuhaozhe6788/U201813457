@@ -1,0 +1,52 @@
+#include <stdio.h>
+#define SIZE 1000
+typedef struct{
+    int top;
+    int A[SIZE];
+}Stack;
+int m=1;
+void init(Stack *s){
+    s->top=0;
+}
+void Push(Stack *s,int e){
+    s->A[s->top]=e;
+    s->top++;
+}
+void Pop(Stack *s){
+    if(s->top!=0)
+       --s->top;
+}
+int GetTop(Stack *s){
+    return s->A[s->top-1];
+}
+void find(int pos,Stack *s,int num[],int No,int n){
+    if(pos<=n){
+        Push(s,pos);
+        find(pos+1,s,num,No,n);
+        Pop(s);
+    }
+    if(s->top!=0){
+        int temp=GetTop(s);
+        Pop(s);
+        num[No]=temp;
+        find(pos,s,num,No+1,n);
+        Push(s,temp);
+    }
+    if(pos>n&&s->top==0){
+        printf("%d:",m++);
+        for(int j=0;j<No;j++)
+            printf("%6d",num[j]);
+        printf("\n");
+    }
+}
+int main()
+{
+    int n,num[20];
+    printf("please input the number of the trains:\n");
+    scanf("%d",&n);
+    Stack s;
+    init(&s);
+    printf("the results are:\n");
+    find(1,&s,num,0,n);
+    return 0;
+}
