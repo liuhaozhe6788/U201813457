@@ -1,0 +1,162 @@
+哈夫曼代码实验报告
+专业：电子信息与通信学院
+班级：电信1808
+学号：U201813457
+姓名：刘浩哲
+完成日期：2019年4月22日星期一
+1.	需求分析
+设计任务：
+（1）构建哈夫曼树，
+（2）获得哈夫曼代码，
+（3）给一串哈夫曼代吗编译出单词
+2.  概要设计
+（1）数据类型包括哈夫曼树的结构体，以及结构体数组
+（2）调用函数包括建立结点，建立数组（其中调用建立结点的函数），建立哈夫曼树，
+  字符串转置，前序遍历哈夫曼树获得哈夫曼代码（其中调用转置函数），译码
+（3）主函数定义字符，权值，和测试哈夫曼码，调用建立数组，建立哈夫曼树，前序遍历和译码函数
+3.  详细设计
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct node {
+    char alphabet;
+    int weight;
+    int tag;
+    struct node *lchild,*rchild,*parent;
+}HTnode,*HTtree;
+HTtree inittree(int *p,char *s){
+    HTtree t=(HTtree)malloc(sizeof(HTnode));
+    t->weight=*p;
+    t->tag=0;
+    t->alphabet=*s;
+    t->lchild=t->rchild=t->parent=NULL;
+	return t;
+}
+void buildarray(int n,int *a,char *s,HTtree ts){
+    int i;
+    for(i=0;i<n;i++)
+    {
+        ts[i]=*inittree(&a[i],&s[i]);
+    }
+    for(i=n;i<2*n-1;i++)
+    {
+        int num=0;
+        char c='#';
+        ts[i]=*inittree(&num,&c);
+    }
+}
+HTtree buildHTtree(int n,HTtree ts){
+    int min1,min2,i,j,t1,t2;
+    for(j=0;j<n-1;j++){
+        for(i=0;i<n+j;i++){
+            if(!ts[i].tag){
+               min1=ts[i].weight;
+               t1=i;
+               break;
+            }
+        }
+        for(i=0;i<n+j;i++){
+            if(min1>ts[i].weight&&!ts[i].tag){
+                t1=i;
+                min1=ts[i].weight;
+            }
+        }
+        ts[t1].tag=1;
+		for(i=0;i<n+j;i++){
+            if(!ts[i].tag){
+               min2=ts[i].weight;
+               t2=i;
+               break;
+            }
+        }
+        for(i=0;i<n+j;i++){
+            if(min2>ts[i].weight&&!ts[i].tag){
+                t2=i;
+                min2=ts[i].weight;
+            }
+        }
+		ts[t2].tag=1;
+        ts[n+j].weight=min1+min2;
+        ts[n+j].lchild=&ts[t1];
+        ts[n+j].rchild=&ts[t2];
+        ts[t1].parent=&ts[n+j];
+		ts[t2].parent=&ts[n+j];
+	}
+    HTtree root=&ts[2*n-2];
+    return root;
+}
+void reverse(char *str){
+	char temp;
+    for(int i=0;i<=strlen(str)/2-1;i++){
+	     temp=str[i];
+		 str[i]=str[strlen(str)-1-i];
+         str[strlen(str)-1-i]=temp;
+	}
+}
+void DLR(HTtree root,char *str,int n){
+	if(root){
+	   if(root->alphabet!='#'){
+		    printf("%c: ",root->alphabet);
+			HTtree p=root;
+			while(p->parent){
+				HTtree p1=p;
+			    p=p->parent;
+				if(p->lchild==p1){
+				    str[n]='0';
+				}
+				else if(p->rchild==p1){
+				    str[n]='1';
+				}
+				n++;
+			}
+			str[n]='\0';	
+			reverse(str);
+			printf("%s\n",str);
+	   }
+	   DLR(root->lchild,str,0);
+	   DLR(root->rchild,str,0);
+	}
+}
+void decode(HTtree root,char *code){
+	printf("now you can see the result:");
+	HTtree p=root;
+	for(int i=0;i<strlen(code);i++){
+		if(code[i]=='0') p=p->lchild;
+	    if(code[i]=='1') p=p->rchild;
+		if(!p->lchild&&!p->rchild){
+			printf("%c",p->alphabet);
+		    p=root;
+		}
+	}
+	printf("\n");
+}
+int main(){
+    int n=8;
+    int a[8]={5,29,7,8,14,23,3,11};
+    char s[8]={'a','b','c','d','e','f','g','h'};
+	  char str[8];
+    HTnode ts[2*8-1];
+    buildarray(n,a,s,ts);
+    HTtree root=buildHTtree(n,ts);
+    DLR(root,str,0);
+	char code[]={"0100011110110"};
+	printf("the code is %s\n",code);
+	decode(root,code);
+    return 0;
+}
+
+4．T(n)=o(n*2),S(n)=o(n*2)
+5.  用户说明
+    用户看到字符对应的哈夫曼代码，测试代码串和最终译码结果
+6.  测试结果
+g: 0000
+a: 0001
+h: 001
+f: 01
+b: 10
+e: 110
+c: 1110
+d: 1111
+the code is 0100011110110
+now you can see the result:face
+Press any key to continue
